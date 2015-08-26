@@ -1,0 +1,58 @@
+<!-- views/index.ejs -->
+<!doctype html>
+<html>
+<head>
+    <% include ./templates/head %>
+</head>
+<body ng-app="homeapp">
+    <header >
+        <% include ./templates/header %>
+    </header>
+<div class="container" ng-controller="homecontroller as app">
+
+  <div class="jumbotron text-center">
+    <h2 style="font-family: cursive; color: #0a6d90"><br/><strong>NoWhereIn | Blog</strong></h2><br/>
+    <% if (user) {%>
+    <% } else {%>
+        <a style="color: #0a6d90" href="/login" class="btn btn-default"><span class="fa fa-user"></span> Local Login</a>
+        <a style="color: #0a6d90" href="/signup" class="btn btn-default"><span class="fa fa-user"></span> Local Signup</a>
+      <% } %>
+  </div>
+
+    <!-- News Feed-->
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-8">
+
+            <table class="table table-hover">
+
+                <thead> <tr> <th><strong style="font-size: x-large">Recent Posts</strong></th> </tr> </thead>
+                <tbody ng-repeat="post in app.posts | orderBy: 'posted_at':true">
+                <tr>
+                    <td>
+                        <strong><a style="font-size: medium" href="/post/user/{{post._id}}">{{post.title}}</a> </strong><br/>
+                        <span class="fa fa-user"></span>&nbsp;<a style="font-size: small" href="/userprofile/{{post.author}}">{{post.author}}</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-2"></div>
+    </div>
+    <!-- Feed end-->
+</div>
+<footer>
+    <% include ./templates/footer %>
+</footer>
+<script type="text/javascript">
+    var index = angular.module('homeapp', []);
+    index.controller('homecontroller', function($http) {
+        var app = this;
+        var url = "http://localhost:8080";
+        $http.get(url+"/getallblogs").success(function(posts) {
+            app.posts=posts;
+        })
+    })
+</script>
+</body>
+</html>

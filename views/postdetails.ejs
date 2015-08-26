@@ -1,0 +1,100 @@
+<html>
+<head>
+    <%include ./templates/head%>
+</head>
+<body ng-app="postdetails">
+<header>
+    <% include ./templates/header%>
+</header>
+
+<div class="container" ng-controller="postdetailsctrl as app">
+    <div class="row">
+        <div class="col-lg-1" ></div>
+        <div class="col-lg-10">
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            <h2> <%= postone.title %> </h2>
+            <hr/>
+            <p style="font-size: smaller"> <%= postone.posted_at %> </p>
+            <br/>
+            <p><%= postone.body %></p>
+            <br/>
+            <p style="font-size: small; text-align: right; ">Author: <a href=/userprofile/<%= postone.author %>><strong><%= postone.author %></strong></a></p>
+
+            <br/>
+            <h3>Comments</h3>
+            <hr/>
+
+            <table class="table table-hover">
+
+                <!--<thead> <tr> <th><strong style="font-size: x-large">Recent Posts</strong></th> </tr> </thead>-->
+                <tbody ng-repeat="commented in app.comments">
+                <tr>
+                    <td>
+                        <span class="fa fa-user"></span>&nbsp;<a style="font-size: medium" href="/userprofile/{{commented.person}}">{{commented.person}}</a>
+                        <br/>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;{{commented.comment}}</p>
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <br/><br/>
+            <hr/>
+
+            <% if (user) {%>
+            <h3>Leave a reply</h3><br/>
+            <!--<form action="#" method="post">-->
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="app.newcomment" placeholder="write a comment..">
+                </div>
+
+                <button type="submit" class="btn btn-default" ng-click="app.postcomment(app.newcomment)">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Post&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>
+            <!--</form>-->
+            <% } else {%>
+            <h3><a href="/login">Login</a> to Leave a reply</h3>
+            <br/>
+            <% } %>
+            <hr/>
+        </div>
+        <div class="col-lg-1"></div>
+    </div>
+</div>
+<footer>
+    <% include ./templates/footer%>
+</footer>
+<script type="text/javascript">
+    var post = angular.module('postdetails', ['ngRoute']);
+    post.controller('postdetailsctrl', function($location, $http) {
+        var app = this;
+        var url = "http://localhost:8080";
+        app.postid = (/post\/user\/(\w+)/.exec($location.absUrl())[1]);
+
+        app.postcomment = function (comment) {
+            $http.get(url+"/getmyprofile").success(function(user) {
+                //app.person = user.local.email;
+
+                $http.post(url+"/postcomment", {
+                    identity  :   app.postid,
+                    person  :   user.local.email,
+                    commenting   :   comment
+                }).success(function() {
+                    loadcomments();
+                })
+            })
+        }
+
+        function loadcomments() {
+            $http.get(url + "/post/getcomments/" + app.postid).success(function (comments) {
+                app.comments = comments;
+            })
+        }
+        loadcomments();
+    })
+</script>
+</body>
+</html>
